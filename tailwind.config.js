@@ -24,6 +24,9 @@ export default {
           primary: "#FF6600",
         }
       },
+      padding: {
+        '5.5': '1.375rem',
+      }
     },
   },
 

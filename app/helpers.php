@@ -45,8 +45,15 @@ if (! function_exists('isMultiTenant')) {
 }
 
 if (! function_exists('price_format')) {
-    function price_format(float $price): string
+    function price_format(float $price, bool $format = true): string
     {
+        if (! $format) {
+            return Number::format(
+                number: $price,
+                locale: Profile::get()->locale ?? 'en'
+            );
+        }
+
         return Number::currency(
             number: $price,
             in: Setting::get('currency', 'IDR'),

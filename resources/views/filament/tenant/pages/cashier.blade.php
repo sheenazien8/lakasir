@@ -4,20 +4,18 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
 
 @endphp
 <div class="">
-  <div class="grid grid-cols-3 gap-x-4">
+  <div class="grid grid-cols-3">
     <div class="col-span-2">
       {{ $this->table }}
     </div>
-    <div class="fixed right-0 w-1/3 h-screen pb-10 overflow-y-scroll">
+    <div class="fixed right-0 w-1/3 pb-10 overflow-y-scroll">
       <div class="px-4 mt-4 space-y-2 h-screen">
         <div class="flex justify-between items-center" x-data="fullscreen">
           <p class="text-xl font-semibold">{{ __('Orders details') }}</p>
           <div class="xl:hidden gap-x-2">
             <x-filament::dropdown placement="top-start">
               <x-slot name="trigger">
-              <x-heroicon-o-ellipsis-vertical
-                class="h-5 w-5 text-gray-900 dark:text-gray-300 cursor-pointer"
-              />
+                <x-heroicon-o-ellipsis-horizontal class="h-5 w-5 text-gray-900 dark:text-gray-300 cursor-pointer text-" />
               </x-slot>
 
               <x-filament::dropdown.list>
@@ -84,10 +82,9 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
           <p class="hidden lg:block text-2xl font-semibold mb-2">{{ __('Current Orders') }}</p>
           <div class="flex gap-x-1"></div>
         </div>
-        {{-- <div wire:loading.class.remove="hidden" class="hidden min-h-40 max-h-[35%] text-center">Loading...</div> --}}
-        <div class="overflow-y-scroll min-h-40 max-h-[35%] overflow-auto" wire:loading.class="opacity-20" wire:target="addCart,reduceCart,deleteCart,addDiscountPricePerItem,addCartUsingScanner">
+        <div class="overflow-y-scroll min-h-40 max-h-[70%] overflow-auto" wire:loading.class="opacity-20" wire:target="addCart,reduceCart,deleteCart,addDiscountPricePerItem,addCartUsingScanner">
           @forelse($cartItems as $item)
-            <div class="mb-2 border rounded-lg bg-white dark:border-gray-900 dark:bg-gray-900 px-4 py-2" id="{{ $item->id }}" key="{{ rand() }}">
+            <div class="mb-2 rounded-lg" id="{{ $item->id }}" key="{{ rand() }}">
               <div class="grid items-center space-x-3">
                 <div class="flex justify-between">
                   <p class="font-semibold"> {{ $item->product->name }}</p>
@@ -150,20 +147,31 @@ use App\Features\{PaymentShortcutButton, SellingTax, Discount};
             </div>
           @endforelse
         </div>
-        <div>
-          <div class="bg-white px-4 py-2 w-full border rounded-lg dark:border-gray-900 dark:bg-gray-900 dark:text-white text-gray-600">
-            @include('filament.tenant.pages.cashier.detail')
+        {{-- <div> --}}
+        {{--   <div class="bg-white px-4 py-2 w-full border rounded-lg dark:border-gray-900 dark:bg-gray-900 dark:text-white text-gray-600"> --}}
+        {{--     @include('filament.tenant.pages.cashier.detail') --}}
+        {{--   </div> --}}
+        {{-- </div> --}}
+        {{-- <div> --}}
+        {{--   <div class="bg-white px-4 py-2 w-full border rounded-lg dark:border-gray-900 dark:bg-gray-900 dark:text-white text-gray-600"> --}}
+        {{--     @include('filament.tenant.pages.cashier.total') --}}
+        {{--   </div> --}}
+        {{-- </div> --}}
+        <div class="relative">
+          <div class="w-1/3 fixed right-0 bottom-0 px-4 py-6 border bg-white">
+            <button class="py-4 px-5.5 bg-lakasir-primary text-white rounded-full w-full flex justify-between items-center"
+              x-on:mousedown="$dispatch('open-modal', {id: 'proceed-the-payment'})">
+              <div class="grid">
+                <p class="font-semibold">{{$cartItems->count()}} {{ __('Item') }}</p>
+                <p class="text-xs">{{ __('Selected') }}</p>
+              </div>
+              <div class="grid text-left items-center">
+                  <p class="text-xs">{{ __('Total') }}</p>
+                  <p class="text-xs">Rp <span class="font-semibold">{{ price_format($total_price, false)}}</span></p>
+              </div>
+            </button>
           </div>
         </div>
-        <div>
-          <div class="bg-white px-4 py-2 w-full border rounded-lg dark:border-gray-900 dark:bg-gray-900 dark:text-white text-gray-600">
-            @include('filament.tenant.pages.cashier.total')
-          </div>
-        </div>
-        <button
-          class="py-4 px-2 bg-lakasir-primary text-white rounded-lg w-full"
-          x-on:mousedown="$dispatch('open-modal', {id: 'proceed-the-payment'})"
-          >{{ __('Proceed to payment') }}</button>
       </div>
     </div>
   </div>
