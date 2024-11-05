@@ -40,14 +40,11 @@
         <div class="relative px-4">
           <div class="flex gap-2">
             <div class="relative flex-1">
-              <input
-              type="text"
-              x-model="searchQuery"
-              @input="handleSearch"
-              class="w-full px-4 py-2 bg-gray-100 rounded-lg pl-10"
-              placeholder="Search"
-              :disabled="isSearching"
-              >
+              <input type="text"
+                x-model="searchQuery"
+                @input="handleSearch"
+                class="w-full px-4 py-2 bg-gray-100 rounded-lg pl-10"
+                placeholder="Search">
               <div class="absolute inset-y-0 left-3 flex items-center">
                 <template x-if="!isSearching">
                   <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,6 +127,13 @@
           </div>
         </template>
       </div>
+      <div id="infinite-scroll-sentinel" class="h-4 w-full">
+        <template x-if="isLoadingMore">
+          <div class="flex justify-center p-4">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
+          </div>
+        </template>
+      </div>
     </div>
 
     <template x-if="cartTotal > 0">
@@ -172,16 +176,71 @@
       isSearching: false,
       isCheckingOut: false,
       isScanning: false,
+      hasMorePages: true,
+      isLoadingMore: false,
+      searchTimeout: null,
 
       init() {
+        this.setupInfiniteScroll();
+
         Livewire.on('refreshPage', (data) => {
           this.cart = data[0].cartItems;
           this.items = data[0].menuItems;
+          this.hasMorePages = data[0].hasMorePages;
         });
 
-        this.$watch('searchQuery', async (searchValue) => {
-          console.log(searchQuery)
-        })
+        this.$watch('searchQuery', (value) => {
+          // Clear the previous timeout
+          if (this.searchTimeout) {
+            clearTimeout(this.searchTimeout);
+          }
+
+          // Reset search if empty
+          if (!value || value.length === 0) {
+            this.isSearching = true;
+            $wire.resetSearch().then(() => {
+              this.isSearching = false;
+            });
+            return;
+          }
+
+          // Set a new timeout for search
+          if (value.length >= 2) {
+            this.searchTimeout = setTimeout(() => {
+              this.handleSearch();
+            }, 300);
+          }
+        });
+      },
+
+      setupInfiniteScroll() {
+        const observer = new IntersectionObserver(async (entries) => {
+          const target = entries[0];
+          if (target.isIntersecting && this.hasMorePages && !this.isLoadingMore) {
+            await this.loadMore();
+          }
+        }, {
+          root: null,
+          rootMargin: '100px',
+          threshold: 0.1
+        });
+
+        // Observe the sentinel element
+        const sentinel = document.querySelector('#infinite-scroll-sentinel');
+        if (sentinel) {
+          observer.observe(sentinel);
+        }
+      },
+
+      async loadMore() {
+        if (this.isLoadingMore || !this.hasMorePages) return;
+
+        this.isLoadingMore = true;
+        try {
+          await $wire.loadMore();
+        } finally {
+          this.isLoadingMore = false;
+        }
       },
 
       getItemQuantity(item) {
@@ -222,12 +281,12 @@
       },
 
       async handleSearch() {
-        if (this.searchQuery.length < 2) return;
+        if (this.searchQuery.length < 3) return;
 
         this.isSearching = true;
         try {
-          await new Promise(resolve => setTimeout(resolve, 300));
-          await $wire.search(this.searchQuery);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await $wire.searchProduct(this.searchQuery);
         } finally {
           this.isSearching = false;
         }
