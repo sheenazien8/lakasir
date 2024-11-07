@@ -239,11 +239,11 @@
       <div class="space-y-3">
         <div class="flex justify-between text-gray-600">
           <span class="text-gray-500 text-sm">Sub total</span>
-          <span x-text="'Rp. ' + moneyFormat(cartTotal)"></span>
+          <span x-text="`${moneyFormat(cartTotal)}`"></span>
         </div>
         <div class="flex justify-between text-gray-600">
           <span class="text-gray-500 text-sm underline">Discount</span>
-          <span x-text="`Rp. ${moneyFormat(totalDiscount)}`"></span>
+          <span x-text="`(${moneyFormat(totalDiscount)})`"></span>
         </div>
         <div class="flex justify-between text-gray-600">
           <span class="text-gray-500 text-sm underline">Member</span>
@@ -251,7 +251,7 @@
         </div>
         <div class="flex justify-between text-gray-600">
           <span class="text-gray-500 text-sm underline" x-text="`Tax (${default_tax})%`"></span>
-          <span x-text="`Rp. ${moneyFormat(cartTotal * default_tax / 100)}`"></span>
+          <span x-text="`${moneyFormat(cartTotal * default_tax / 100)}`"></span>
         </div>
         <div class="flex justify-between font-medium text-lg">
           <span>Total</span>
