@@ -7,6 +7,7 @@ use App\Models\Tenants\CartItem;
 use App\Models\Tenants\Category;
 use App\Models\Tenants\Product;
 use App\Traits\HasTranslatableResource;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 class POS extends Page
@@ -82,12 +83,7 @@ class POS extends Page
 
         $this->menuItems = collect($this->menuItems)->concat($newItems);
 
-        $this->dispatch('refreshPage', [
-            'cartItems' => $this->cartItems,
-            'categories' => $this->categories,
-            'menuItems' => $this->menuItems,
-            'hasMorePages' => $this->hasMorePages,
-        ]);
+        $this->refreshPage();
     }
 
     public function searchProduct($query)
@@ -110,12 +106,7 @@ class POS extends Page
         $this->menuItems = $query->take($this->perPage)->get();
         $this->hasMorePages = $query->count() > $this->perPage;
 
-        $this->dispatch('refreshPage', [
-            'cartItems' => $this->cartItems,
-            'categories' => $this->categories,
-            'menuItems' => $this->menuItems,
-            'hasMorePages' => $this->hasMorePages,
-        ]);
+        $this->refreshPage();
     }
 
     public function resetSearch()
@@ -138,12 +129,8 @@ class POS extends Page
     public function addToCart(Product $product, ?array $data = null): void
     {
         $this->addCart($product, $data);
-        $this->dispatch('refreshPage', [
-            'cartItems' => $this->cartItems,
-            'categories' => $this->categories,
-            'menuItems' => $this->menuItems,
-            'hasMorePages' => $this->hasMorePages,
-        ]);
+
+        $this->refreshPage();
     }
 
     public function allCategory(): void
@@ -159,12 +146,7 @@ class POS extends Page
         $this->hasMorePages = Product::when($this->search, fn ($query) => $query->where('name', 'like', "%{$this->search}%")
         )->count() > $this->perPage;
 
-        $this->dispatch('refreshPage', [
-            'cartItems' => $this->cartItems,
-            'categories' => $this->categories,
-            'menuItems' => $this->menuItems,
-            'hasMorePages' => $this->hasMorePages,
-        ]);
+        $this->refreshPage();
     }
 
     public function filterCategoryId(?Category $category): void
@@ -189,14 +171,33 @@ class POS extends Page
         ]);
     }
 
-    public function scanProduct(string $barcode): void
+    public function scanProduct(string $barcode): ?Product
     {
-        $this->addCartUsingScanner($barcode);
+        $product = Product::query()
+            ->whereBarcode($barcode)
+            ->first();
+
+        if (! $product) {
+            Notification::make()
+                ->title(__('Product not found'))
+                ->warning()
+                ->send();
+
+            return null;
+        }
+
+        return $product;
+    }
+
+    public function refreshPage(): void
+    {
         $this->dispatch('refreshPage', [
             'cartItems' => $this->cartItems,
             'categories' => $this->categories,
             'menuItems' => $this->menuItems,
             'hasMorePages' => $this->hasMorePages,
+            'page' => $this->page,
+            'perPage' => $this->perPage,
         ]);
     }
 }

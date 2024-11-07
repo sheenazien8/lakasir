@@ -85,8 +85,11 @@
 <script>
   Alpine.data('barcode', () => {
     return {
+      isScanning: false,
+      isLoading: false,
       stream: null,
       flashMode: 'off',
+
       async openBarcodeScanner() {
         if (!('BarcodeDetector' in window)) {
           alert('Barcode scanner is not supported in this browser');
@@ -109,23 +112,28 @@
 
           const barcodeDetector = new BarcodeDetector();
 
-          // Scan for barcode
           const detectBarcode = async () => {
             if (!this.isScanning) return;
 
             try {
               const barcodes = await barcodeDetector.detect(video);
               if (barcodes.length > 0) {
-                // Vibrate device if supported
                 if ('vibrate' in navigator) {
                   navigator.vibrate(200);
                 }
 
                 this.isLoading = true;
 
-                // await $wire.scanProduct(barcodes[0].rawValue)
+
+                const barcodeValue = barcodes[0].rawValue;
+
+                const item  = await $wire.scanProduct(barcodeValue)
+
+                if (item) {
+                  const cartButton = document.querySelector('[x-data="cartButton()"]');
+                  Alpine.$data(cartButton).openModal(item)
+                }
                 this.closeBarcodeScanner();
-                $store.openCartButtonModal = true;
               } else {
                 requestAnimationFrame(detectBarcode);
               }
@@ -174,8 +182,8 @@
         }
         this.isScanning = false;
         this.flashMode = 'off';
-      },
+      }
     }
-  })
+  });
 </script>
 @endscript

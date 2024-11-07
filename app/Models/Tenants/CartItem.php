@@ -24,7 +24,12 @@ class CartItem extends Model
         'price_unit_id',
     ];
 
-    protected $appends = ['price_format_money', 'discount_price_format', 'final_price_format'];
+    protected $appends = [
+        'price_format_money',
+        'discount_price_format',
+        'final_price_format',
+        'price_unit_value',
+    ];
 
     public function cashier(): BelongsTo
     {
@@ -41,7 +46,7 @@ class CartItem extends Model
         return $builder->where('user_id', Filament::auth()->id());
     }
 
-    public function getPriceFormatMOneyAttribute()
+    public function getPriceFormatMoneyAttribute()
     {
         $priceUnit = $this->priceUnit?->selling_price;
         if ($priceUnit) {
@@ -49,6 +54,16 @@ class CartItem extends Model
         }
 
         return price_format($priceUnit ?? $this->price);
+    }
+
+    public function getPriceUnitValueAttribute()
+    {
+        $priceUnit = $this->priceUnit?->selling_price;
+        if ($priceUnit) {
+            $priceUnit = $priceUnit * $this->qty;
+        }
+
+        return $priceUnit ?? $this->price;
     }
 
     public function getFinalPriceFormatAttribute()
