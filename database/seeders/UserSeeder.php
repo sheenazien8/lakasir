@@ -26,9 +26,14 @@ class UserSeeder extends Seeder
             $email = $tenant->user->email;
             $password = $tenant->user->password;
         }
-        User::create([
-            'email' => $email,
-            'password' => $password,
-        ]);
+        User::query()
+            ->updateOrCreate([
+                'email' => $email,
+            ],
+                [
+                    'email' => $email,
+                    'password' => $password,
+                ]
+            );
     }
 }

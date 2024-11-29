@@ -47,6 +47,10 @@ if (! function_exists('isMultiTenant')) {
 if (! function_exists('price_format')) {
     function price_format(float $price): string
     {
+        if (config('database.default') == 'nativephp') {
+            return number_format($price);
+        }
+
         return Number::currency(
             number: $price,
             in: Setting::get('currency', 'IDR'),

@@ -15,10 +15,12 @@ class CategorySeeder extends Seeder
      */
     public function run()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        }
         Category::truncate();
         Category::create([
-            'name' => "UMUM"
+            'name' => 'UMUM',
         ]);
     }
 }
