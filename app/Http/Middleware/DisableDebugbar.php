@@ -16,7 +16,7 @@ class DisableDebugbar
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->path() == 'offline') {
+        if ($request->path() == 'offline' || config('database.default') == 'nativephp') {
             Debugbar::disable();
         }
 

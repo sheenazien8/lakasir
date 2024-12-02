@@ -81,10 +81,12 @@ class TenantPanelProvider extends PanelProvider
             $this->initializeDefaultPanel($panel);
         }
 
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_END,
-            fn () => view('meta')
-        );
+        if (config('database.default') != 'nativephp') {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::HEAD_END,
+                fn () => view('meta')
+            );
+        }
 
         return $panel;
     }
