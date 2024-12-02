@@ -34,7 +34,6 @@ class RoleResource extends Resource
                     ->columns(4)
                     ->relationship(
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn ($query) => $query->where('guard_name', 'web')
                     )
                     ->noSearchResultsMessage('No permissions found.')
                     ->searchable(),
@@ -44,7 +43,6 @@ class RoleResource extends Resource
                     ->columns(4)
                     ->relationship(
                         titleAttribute: 'name',
-                        modifyQueryUsing: fn ($query) => $query->where('guard_name', 'sanctum')
                     )
                     ->noSearchResultsMessage('No permissions found.')
                     ->searchable(),

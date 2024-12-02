@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('receivable_payments', function (Blueprint $table) {
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign('debt_payments_debt_id_foreign');
             }
             $table->foreign(['receivable_id'])->references('id')->on('receivables');
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign('debt_payments_payment_method_id_foreign');
             }
             $table->foreign(['payment_method_id'])->references('id')->on('payment_methods');
 
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign('debt_payments_user_id_foreign');
             }
             $table->foreign(['user_id'])->references('id')->on('users');
@@ -34,17 +34,17 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('receivable_payments', function (Blueprint $table) {
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign(['receivable_id']);
             }
 
             $table->foreign('receivable_id', 'debt_payments_debt_id_foreign')->references('id')->on('receivables');
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign(['payment_method_id']);
             }
 
             $table->foreign('payment_method_id', 'debt_payments_payment_method_id_foreign')->references('id')->on('payment_methods');
-            if (in_array(config('database.default'), ['nativephp', 'sqlite'])) {
+            if (!in_array(config('database.default'), ['nativephp', 'sqlite'])) {
                 $table->dropForeign(['user_id']);
             }
 
