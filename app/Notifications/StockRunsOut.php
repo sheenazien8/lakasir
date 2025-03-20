@@ -14,9 +14,7 @@ use NotificationChannels\Fcm\Resources\Notification as FcmNotification;
 
 class StockRunsOut extends Notification
 {
-    public function __construct(private array $data)
-    {
-    }
+    public function __construct(private array $data) {}
 
     public function via(User $user)
     {
@@ -73,6 +71,7 @@ class StockRunsOut extends Notification
             ]);
             $convertedArray[] = $data;
         }
+        dd($convertedArray);
 
         return $convertedArray;
     }

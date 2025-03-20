@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Tenants\Product;
+use App\Models\Tenants\Receivable;
 use App\Models\Tenants\Setting;
 use App\Models\Tenants\User;
 use App\Notifications\StockRunsOut;
@@ -15,6 +16,22 @@ class FCM extends Command
     public function handle(): void
     {
         $this->sentTheStockAlert();
+        $this->sentReceviableDueDateAlert();
+    }
+
+    private function sentReceviableDueDateAlert(): void
+    {
+        $receivables = Receivable::where('due_date', '<=', today())
+            ->where('status', false)
+            ->get();
+
+        if ($receivables->isEmpty()) {
+            return;
+        }
+        $users = User::all();
+        foreach ($users as $user) {
+            $user->notify(new \App\Notifications\ReceivableDueDate($receivable));
+        }
     }
 
     private function sentTheStockAlert(): void

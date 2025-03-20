@@ -14,6 +14,10 @@ class Receivable extends Model
 {
     use HasFactory;
 
+    protected $cast = [
+        'due_date' => 'date',
+    ];
+
     protected $guarded = ['id'];
 
     public function member(): BelongsTo
